@@ -1,3 +1,4 @@
+// vim: set syntax=delphi:
 begin
   // set world to 0 to use worldFilter
   Script.DeclarePlayer('username/email', 'password', 418);
