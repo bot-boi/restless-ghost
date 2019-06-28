@@ -1,3 +1,4 @@
+// vim: set syntax=delphi:
 type TDTMs = record
     ChurchDoorClosed, CoffinDoorClosed, FatherUrhneyDoorClosed, WizardBasementDoorClosed, GhostsSkull, GhostspeakAmulet, WizardTowerLadder, WizardTowerInnerDoorClosed, WizardTowerOuterDoorClosed: Integer;
   end;
