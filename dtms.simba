@@ -1,0 +1,249 @@
+type TDTMs = record
+    ChurchDoorClosed, CoffinDoorClosed, FatherUrhneyDoorClosed, WizardBasementDoorClosed, GhostsSkull, GhostspeakAmulet, WizardTowerLadder, WizardTowerInnerDoorClosed, WizardTowerOuterDoorClosed: Integer;
+  end;
+
+var
+  DTMs: TDTMs;
+
+begin
+  DTMs.ChurchDoorClosed           := DTMFromString('mQwAAAHicY2ZgYGhhYmBYB8TBQPyYAYFz/YwY/Dw9GHzc3BhYgXwYZmSAACgNADW7Bu0=');
+  DTMs.CoffinDoorClosed           := DTMFromString('mQwAAAHicY2ZgYLjHxMBwB4gfAfFnIF+UkYHhKpBO8JRgSE9PAGNWIB+GGZEwEAAAXooHsw==');
+  DTMs.FatherUrhneyDoorClosed     := DTMFromString('mLgAAAHicY2JgYPgJxAKMDAwFQDofiLtK/RhsDEQZmIFsEGYCYqA0EAAAc8IDww==');
+  DTMs.GhostspeakAmulet           := DTMFromString('mQwAAAHicY2ZgYJjIxMCwEIgnA3EdIwNDLhBnAfHuddMYigNlGYKsRBlYgepgGA0AACj2Brc=');
+  DTMs.GhostsSkull                := DTMFromString('mWAAAAHicY2FgYJjOxMAwGYjnAvE0IC5iZGBoBuJCIM4F4iM7lgBVMTJ01OUwnNi3hgGoBAyYoBgbAAAwMAoM');
+  DTMs.WizardBasementDoorClosed   := DTMFromString('mQwAAAHicY2ZgYJBnROCpQH4REG8C4hg3UQYbEwYGJ0sGBi4GBEYDAKOXA90=');
+  DTMs.WizardTowerInnerDoorClosed := DTMFromString('mQwAAAHicY2ZgYNjLyMBwDogXA7EfECcDsTkQ1yZYMnRPmMbQP2UWAxdQnREUowEATqUIEg==');
+  DTMs.WizardTowerLadder          := DTMFromString('mLgAAAHicY2JgYMhkZGCIBmIHILYBYjcTCQZRQUEGEaAcFwMyAABERQIu');
+  DTMs.WizardTowerOuterDoorClosed := DTMFromString('mQwAAAHicY2ZgYPgPxNKMDAyPgfRGIN4ApbtzHBimzJwPxqxAPgyjAQB7Ggjy');
+end;
+
+// opens door to church if it needs to be opened
+function OpenChurchDoor(): Boolean;
+var
+  TPA: TPointArray;
+  p: TPoint;
+  b: TBox; // bounds
+begin
+  Result := False;
+  b := Mainscreen.GetBounds();
+  Mainscreen.SetAngle(True);
+  Minimap.SetCompassAngle(0);
+  Wait(Random(100));
+  Minimap.SetCompassAngle(0);
+
+  FindDTMs(DTMs.ChurchDoorClosed, TPA, b.X1, b.Y1, b.X2, b.Y2);
+  // it'd be better to shuffle the TPA and then mosue over each point until match
+  Mouse.Move(MedianTPA(TPA));
+
+  if Mainscreen.IsUpText('Open Large door') then begin
+    if Mouse.Click(ctRed) then begin
+        Result := True;
+      end;
+  end;
+  {$IFDEF DEBUG}
+    Script.DebugTPA(TPA);
+    Wait(5000);
+  {$ENDIF}
+end;
+
+// opens door to coffin if it needs to be opened
+function OpenCoffinDoor(): Boolean;
+var
+  TPA: TPointArray;
+  p: TPoint;
+  b: TBox; // bounds
+begin
+  Result := False;
+  b := Mainscreen.GetBounds();
+  Mainscreen.SetAngle(True);
+  Minimap.SetCompassAngle(0);
+
+  FindDTMs(DTMs.CoffinDoorClosed, TPA, b.X1, b.Y1, b.X2, b.Y2);
+  Mouse.Move(MedianTPA(TPA));
+  if Mainscreen.IsUpText('Open Door') then begin
+    if Mouse.Click(ctRed) then begin
+        Result := True;
+      end;
+  end;
+  {$IFDEF DEBUG}
+    Script.DebugTPA(TPA);
+    Wait(5000);
+  {$ENDIF}
+  Wait(RandomRange(500, 1500));
+end;
+
+// opens door to father urhneys shack if it needs to be opened
+function OpenFatherUrhneyDoor(): Boolean;
+var
+  TPA: TPointArray;
+  p: TPoint;
+  b: TBox; // bounds
+begin
+  Result := False;
+  b := Mainscreen.GetBounds();
+  Mainscreen.SetAngle(True);
+  Minimap.SetCompassAngle(0);
+  Wait(Random(500));
+  Minimap.SetCompassAngle(0);
+
+  FindDTMs(DTMs.FatherUrhneyDoorClosed, TPA, b.X1, b.Y1, b.X2, b.Y2);
+
+  {$IFDEF DEBUG}
+    Script.DebugTPA(TPA);
+  {$ENDIF}
+
+  for p in TPA do begin
+    Mouse.Move(p);
+    if Mainscreen.IsUpText('Open Door') then begin
+      if Mouse.Click(ctRed) then begin
+        Result := True;
+        Break;
+      end;
+    end;
+  end;
+  Wait(RandomRange(500, 1500));
+end;
+
+// working
+function EquipGhostspeakAmulet(): Boolean;
+var
+  targetSlot: Int32;
+  p: TPoint;
+  b: TBox; // bounds
+begin
+  Result := False;
+
+  Inventory.Open();
+  targetSlot := Inventory.FindDTM(DTMs.GhostspeakAmulet, 1)[0];
+  Inventory.MouseSlot(targetSlot);
+  if Mainscreen.IsUpText('Ghostspeak') then begin
+    Inventory.MouseSlot(targetSlot, mouse_Left);
+    Result := True;
+  end;
+end;
+
+//
+function UseGhostsSkull(): Boolean;
+var
+  targetSlot: Int32;
+  p: TPoint;
+  b: TBox; // bounds
+begin
+  Result := False;
+
+  Inventory.Open();
+  targetSlot := Inventory.FindDTM(DTMs.GhostsSkull, 1)[0];
+
+  Inventory.MouseSlot(targetSlot);
+  if Mainscreen.IsUpText("Ghost's") then begin
+    Inventory.ActivateSlot(targetSlot);
+    Result := True;
+  end;
+end;
+
+// opens the door leading to the altar in the wizard tower basement
+function OpenWizardBasementDoor(): Boolean;
+var
+  TPA: TPointArray;
+  p: TPoint;
+  b: TBox; // bounds
+begin
+  Result := False;
+  b := Mainscreen.GetBounds();
+  Mainscreen.SetAngle(True);
+  Minimap.SetCompassAngle(0);
+
+  FindDTMs(DTMs.WizardBasementDoorClosed, TPA, b.X1, b.Y1, b.X2, b.Y2);
+  Mouse.Move(MedianTPA(TPA));
+  if Mainscreen.IsUpText('Open Door') then begin
+    if Mouse.Click(ctRed) then begin
+        Result := True;
+      end;
+  end;
+  {$IFDEF DEBUG}
+    Script.DebugTPA(TPA);
+  {$ENDIF}
+  Wait(RandomRange(500, 1500));
+end;
+
+// opens outer door to wizard tower
+function OpenWizardTowerInnerDoor(): Boolean;
+var
+  TPA: TPointArray;
+  p: TPoint;
+  b: TBox; // bounds
+begin
+  Result := False;
+  b := Mainscreen.GetBounds();
+  Mainscreen.SetAngle(True);
+  Minimap.SetCompassAngle(0);
+
+  FindDTMs(DTMs.WizardTowerInnerDoorClosed, TPA, b.X1, b.Y1, b.X2, b.Y2);
+  Mouse.Move(MedianTPA(TPA));
+  if Mainscreen.IsUpText('Open Door') then begin
+    if Mouse.Click(ctRed) then begin
+        Result := True;
+      end;
+  end;
+  {$IFDEF DEBUG}
+    Script.DebugTPA(TPA);
+  {$ENDIF}
+  Wait(RandomRange(500, 1500));
+end;
+
+// climbs up or down the ladder to the wizard tower basement
+function ClimbWizardTowerLadderTop(): Boolean;
+var
+  TPA: TPointArray;
+  p: TPoint;
+  b: TBox; // bounds
+begin
+  Result := False;
+  b := Mainscreen.GetBounds();
+  Mainscreen.SetAngle(True);
+  Minimap.SetCompassAngle(0);
+
+  FindDTMs(DTMs.WizardTowerLadder, TPA, b.X1, b.Y1, b.X2, b.Y2);
+
+  {$IFDEF DEBUG}
+    Script.DebugTPA(TPA);
+  {$ENDIF}
+
+  for p in TPA do begin
+    Mouse.Move(p);
+    if Mainscreen.IsUpText('Ladder') then begin
+      if Mouse.Click(ctRed) then begin
+        Result := True;
+        Break;
+      end;
+    end;
+  end;
+  Wait(RandomRange(500, 1500));
+end;
+
+// opens outer door to wizard tower
+function OpenWizardTowerOuterDoor(): Boolean;
+var
+  TPA: TPointArray;
+  p: TPoint;
+  b: TBox; // bounds
+begin
+  Result := False;
+  b := Mainscreen.GetBounds();
+  Mainscreen.SetAngle(True);
+  Minimap.SetCompassAngle(0);
+
+  FindDTMs(DTMs.WizardTowerOuterDoorClosed, TPA, b.X1, b.Y1, b.X2, b.Y2);
+  Mouse.Move(MedianTPA(TPA));
+  if Mainscreen.IsUpText('Open Door') then begin
+    if Mouse.Click(ctRed) then begin
+        Result := True;
+      end;
+  end;
+  {$IFDEF DEBUG}
+    Script.DebugTPA(TPA);
+  {$ENDIF}
+  Wait(RandomRange(500, 1500));
+end;
+
+

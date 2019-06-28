@@ -1,0 +1,173 @@
+type TColors = record
+    Coffin, CoffinCover, CoffinDoor, FatherAereck, FatherAereckDoor, FatherUrhney, FatherUrhneyDoor, RestlessGhost, WizardAltar, WizardTowerLadderBottom: TCTS2Color;
+  end;
+
+var
+  Colors: TColors;
+
+begin
+  Colors.Coffin                  := CTS2(6177,    1,  0.72, 0.01);
+  Colors.CoffinCover             := CTS2(3159868, 6,  0.13, 0.30);
+  Colors.CoffinDoor              := CTS2(1199205, 3,  0.14, 4.02);  // smallest possible cluster is about 50x5 pixels
+  Colors.FatherAereck            := CTS2(1973805, 5,  3.40, 0.82);
+  Colors.FatherAereckDoor        := CTS2(2643316, 5,  0.49, 2.77);   // to get into the church if it is closed (UNUSED)
+  Colors.FatherUrhney            := CTS2(2435888, 10, 0.97, 1.13);
+  Colors.FatherUrhneyDoor        := CTS2(3956085, 9,  0.06, 0.59);
+  Colors.RestlessGhost           := CTS2(9543316, 10, 0.57, 0.17);
+  Colors.WizardAltar             := CTS2(4613501, 9,  0.05, 0.11);
+  Colors.WizardTowerLadderBottom := CTS2(1917526, 9,  0.16, 0.39);
+end;
+
+
+// finds an object and moves the mouse there.   returns true if an object was found
+function HoverObject(color: TCTS2Color; cluster: Integer; filterSize: TIntegerArray; uptext: String): Boolean;
+var
+  TPA, obj: TPointArray;
+  ATPA: T2DPointArray;
+  p: TPoint;
+  b: TBox; // bounds
+
+begin
+  Result := False;
+  b := Mainscreen.GetBounds();
+
+  if SRL.FindColors(TPA, color, b) > 0 then begin
+    ATPA := TPA.Cluster(cluster);
+    ATPA.FilterSize(filterSize[0], filterSize[1]);
+    ATPA.SortByIndex(Mainscreen.GetMiddle());
+
+    {$IFDEF DEBUG}
+      Script.DebugATPA(ATPA);
+    {$ENDIF}
+
+    for obj in ATPA do begin
+      p := obj[Random(Length(obj))];
+      writeln(p);
+      Mouse.Move(p);
+      if Mainscreen.IsUpText(uptext) then begin
+        Result := True;
+        Break;
+      end;
+    end;
+  end;
+end;
+
+// working 6/16/19
+function ClickCoffin(timeout: Int32 = ONE_SECOND*30): Boolean;
+var
+  T: TTimeMarker;
+begin
+  T.Start;
+  while not HoverObject(Colors.Coffin, 3, [25, 3000], 'Coffin') do begin
+    Wait(Random(50));
+    if T.GetTime > timeout then begin
+      writeln('ClickCoffin failed!');
+      Break;
+    end;
+  end;
+  Mouse.Click(ctRed);
+end;
+
+// working 6/16/19
+function ClickCoffinCover(timeout: Int32 = ONE_SECOND*30): Boolean;
+var
+  T: TTimeMarker;
+begin
+  T.Start;
+  while not HoverObject(Colors.CoffinCover, 4, [300, 2000], 'Open Coffin') do begin
+    Wait(Random(50));
+    if T.GetTime > timeout then begin
+      writeln('ClickCoffinOutside failed!');
+      Break;
+    end;
+  end;
+  Mouse.Click(ctRed);
+end;
+
+// working 6/18/19
+function ClickFatherAereck(timeout: Int32 = ONE_SECOND*30): Boolean;
+var
+  T: TTimeMarker;
+begin
+  Result := False;
+  T.Start;
+  while not HoverObject(Colors.FatherAereck, 2, [50, 1500], 'Talk-to Father Aereck') do begin
+    Wait(Random(50));
+    if T.GetTime > timeout then begin
+      writeln('ClickFatherAereck failed!');
+      Break;
+    end;
+  end;
+  if Mouse.Click(ctRed) then Result := True;
+end;
+
+// working 6/18/19
+function ClickFatherUrhney(timeout: Int32 = ONE_SECOND*30): Boolean;
+var
+  T: TTimeMarker;
+begin
+  Result := False;
+  T.Start;
+  while not HoverObject(Colors.FatherUrhney, 2, [150, 800], 'Talk-to Father Urhney') do begin
+    Wait(Random(50));
+    if T.GetTime > timeout then begin
+      writeln('ClickFatherAereck failed!');
+      Break;
+    end;
+  end;
+  if Mouse.Click(ctRed) then Result := True;
+end;
+
+// working 6/19/19
+function ClickRestlessGhost(timeout: Int32 = ONE_SECOND*30): Boolean;
+var
+  T: TTimeMarker;
+begin
+  Result := False;
+  T.Start;
+
+  while not HoverObject(Colors.RestlessGhost, 3, [50, 800], 'ghost') do begin
+    Wait(Random(50));
+    if T.GetTime > timeout then begin
+      writeln('ClickRestlessGhost failed!');
+      Break;
+    end;
+  end;
+  if Mouse.Click(ctRed) then Result := True;
+end;
+
+//
+function ClickWizardAltar(timeout: Int32 = ONE_SECOND*30): Boolean;
+var
+  T: TTimeMarker;
+begin
+  Result := False;
+  T.Start;
+
+  while not HoverObject(Colors.WizardAltar, 4, [100, 5000], 'Altar') do begin
+    Wait(Random(50));
+    if T.GetTime > timeout then begin
+      writeln('ClickWizardAltar failed!');
+      Break;
+    end;
+  end;
+  if Mouse.Click(ctRed) then Result := True;
+end;
+
+//
+function ClickWizardTowerLadderBottom(timeout: Int32 = ONE_SECOND*30): Boolean;
+var
+  T: TTimeMarker;
+begin
+  Result := False;
+  T.Start;
+
+  while not HoverObject(Colors.WizardTowerLadderBottom, 4, [50, 1500], 'Ladder') do begin
+    Wait(Random(50));
+    if T.GetTime > timeout then begin
+      writeln('ClickWizardBasementLadderLower failed!');
+      Break;
+    end;
+  end;
+  if Mouse.Click(ctRed) then Result := True;
+end;

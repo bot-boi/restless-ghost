@@ -1,0 +1,56 @@
+const            // path from lumbridge spawn to wizard tower, goes past lumby church, the coffin, and father urhney on the way
+  MAIN_PATH_RAW = [[864, 503], [900, 503], [914, 526], [910, 556], [914, 570], [936, 575], [946, 595], [943, 622], [934, 652], [923, 681], [914, 705], [903, 732], [876, 748], [830, 752], [795, 745], [759, 754], [716, 763], [677, 755], [645, 737], [605, 728], [598, 699], [584, 675], [573, 642], [550, 607], [539, 558], [510, 534], [473, 530], [430, 534], [424, 579], [424, 613], [423, 655], [422, 697]];
+
+type TPositions = record
+    Coffin, CoffinDoor, FatherAereck, FatherAereckDoor, FatherUrhney, FatherUrhneyDoor, LumbridgeSpawn, WizardBasementAltar, WizardBasementDoor, WizardBasementLadder, WizardTowerInsideDoor, WizardTowerOutsideDoor: TPoint;
+  end;
+
+
+var
+  P: TPositions;
+  MainPath: Array of TPoint;
+  WebPath: TWebGraph;
+
+
+procedure InitWebPath();
+var
+  rawNode: Array of Int64;
+  p: TPoint;
+  i: Integer = -1;
+begin
+  for RawNode in MAIN_PATH_RAW do begin
+    p := Point(rawNode[0], rawNode[1]);
+    WebPath.AddNode(p, i);
+    Inc(i);
+  end;
+end;
+
+// initialization
+begin
+  P.Coffin                  := Point(967, 607);
+  P.CoffinDoor              := Point(956, 605);
+  P.FatherAereck            := Point(944, 538);
+  P.FatherAereckDoor        := Point(944, 514);
+  P.FatherUrhney            := Point(558, 675);
+  P.FatherUrhneyDoor        := Point(558, 686);
+  P.LumbridgeSpawn          := Point(864, 503);
+  P.WizardBasementAltar     := Point(214, 168); // basement map
+  P.WizardBasementDoor      := Point(180, 199); // basement map
+  P.WizardBasementLadder    := Point(158, 130); // basement map
+  P.WizardTowerInsideDoor   := Point(398, 728);
+  P.WizardTowerOutsideDoor  := Point(406, 710);
+
+  InitWebPath();
+
+  WebPath.AddNode(P.Coffin, -1);
+  WebPath.AddNode(P.CoffinDoor, -1);
+  WebPath.AddNode(P.FatherAereck, -1);
+  WebPath.AddNode(P.FatherAereckDoor, -1);
+  WebPath.AddNode(P.FatherUrhney, -1);
+  WebPath.AddNode(P.FatherUrhneyDoor, -1);
+  WebPath.AddNode(P.LumbridgeSpawn, -1);
+  WebPath.AddNode(P.WizardTowerInsideDoor, -1);
+  WebPath.AddNode(P.WizardTowerOutsideDoor, -1);
+
+  RSW_Graph := WebPath;
+end;

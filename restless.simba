@@ -1,0 +1,146 @@
+program RestlessGhost;
+
+// a script that does the restless ghost quest
+
+{$DEFINE DEBUG}
+
+{$I Script/script.simba}
+{$include_once colors.simba}
+{$include_once dtms.simba}
+{$include_once player-declarations.simba}
+{$include_once positions.simba}
+
+procedure DoDialogue(options: Array of Int32); // do chat by chat option indices, not strings :)
+var
+  option: Int32;
+  chatOption: TRSChatOption;
+  chatOptions: TRSChatOptionArray;
+
+begin
+  writeln('DoDialogue-: Starting');
+
+  Wait(RandomRange(6000, 8000));
+
+  for option in options do begin
+    while Chatbox.ClickContinue() do Chatbox.PleaseWait();
+
+    Chatbox.PleaseWait();
+    chatOptions := Chatbox.GetOptions();
+
+    // writeln('chat options!');
+    // for chatOption in chatOptions do begin
+    //   writeln(chatOption.Text);
+    // end;
+    // writeln('end chat options!');
+
+    writeln(RSClient.FChild);
+    writeln(chatOptions[option].Text);
+    Chatbox.ClickOption([chatOptions[option].Text]); // fn ugly fn
+    writeln(RSClient.FChild);
+
+    Chatbox.PleaseWait();
+    writeln(RSClient.FChild);
+  end;
+
+  writeln('done selecting options');
+
+  while Chatbox.ClickContinue() do Chatbox.PleaseWait();
+
+  writeln('DoDialogue-: Done');
+end;
+
+label FatherAereck, FatherUrhney, RestlessGhost, EnterWizardBasement, WizardBasement, ExitWizardBasement, RestlessGhostEnd;
+
+begin
+  ClearDebug();
+
+  Script.Init('/usr/games/runescape --prmfile=oldschool.prm & echo -ne "\n"');
+  Script.LoadMap('/home/noone/Simba1.3/Scripts/restless-ghost/maps/restless-ghost-map.png');
+
+  Players.SetCurrent(1);
+  Script.Login();
+
+  // wait so you can hide roofs, set brightness to max, set zoom to 50, turn off autoretaliate, set combat style to defensive, equip shield
+  // this should be done automatically
+  writeln('Waiting for manual setup...');
+  DisplayDebugImgWindow(500, 500);
+  Wait(10000);
+
+  goto EnterWizardBasement;
+
+  // go see father aereck to start the quest!
+  FatherAereck:
+    Script.Walker.WebWalk(P.FatherAereckDoor);
+    OpenChurchDoor();
+    Script.Walker.WebWalk(P.FatherAereck);
+    ClickFatherAereck();
+    DoDialogue([2, 0]);
+    Script.Walker.WebWalk(P.FatherAereckDoor);
+    OpenChurchDoor();
+
+  // go and talk to father urhney to get ghostspeak amulet
+  FatherUrhney:
+    Script.Walker.WebWalk(P.FatherUrhneyDoor);
+    OpenFatherUrhneyDoor();
+    Script.Walker.WebWalk(P.FatherUrhney);
+    ClickFatherUrhney();
+    DoDialogue([1, 0]);
+    Script.Walker.WebWalk(P.FatherUrhneyDoor);
+    OpenFatherUrhneyDoor();
+
+  // go n talk to ghost boi
+  RestlessGhost:
+    EquipGhostspeakAmulet();
+    Script.Walker.WebWalk(P.CoffinDoor);
+    OpenCoffinDoor();
+    Script.Walker.WebWalk(P.Coffin);
+    ClickCoffinCover(); // only open if coffin is closed
+    ClickRestlessGhost();
+    DoDialogue([0]);
+    Script.Walker.WebWalk(P.CoffinDoor);
+    OpenCoffinDoor();
+
+  // get the skull from the wizard tower basement
+  EnterWizardBasement:
+    Script.Walker.WebWalk(P.WizardTowerOutsideDoor);
+    OpenWizardTowerOuterDoor();
+    Script.Walker.WebWalk(P.WizardTowerInsideDoor);
+    OpenWizardTowerInnerDoor();
+    ClimbWizardTowerLadderTop();
+    Wait(Random(5000));
+    Script.Walker.WaitPlayerMoving();
+
+  WizardBasement:
+    Script.LoadMap('/home/noone/Simba1.3/Scripts/restless-ghost/maps/wizard-tower-basement-map.png', 2);
+    Script.Walker.WalkPath([P.WizardBasementDoor]);
+    OpenWizardBasementDoor();
+    Script.Walker.WalkPath([P.WizardBasementAltar]);
+    ClickWizardAltar();                               // skeleton appears here, remember to turn autoretaliate off
+    Script.Walker.WaitPlayerMoving();
+
+    Script.Walker.WalkPath([P.WizardBasementDoor]);
+    OpenWizardBasementDoor();
+    Script.Walker.WalkPath([P.WizardBasementLadder]); // run away from the bones boi!
+    ClickWizardTowerLadderBottom();
+    Script.Walker.WaitPlayerMoving();
+
+  ExitWizardBasement:
+    Script.LoadMap('/home/noone/Simba1.3/Scripts/restless-ghost/maps/restless-ghost-map.png');
+    Script.Walker.WebWalk(P.WizardTowerInsideDoor);
+    OpenWizardTowerInnerDoor();
+    Script.Walker.WebWalk(P.WizardTowerOutsideDoor);
+    OpenWizardTowerOuterDoor();
+
+  // return skull to restless ghost
+  RestlessGhostEnd:
+    Script.Walker.WebWalk(P.CoffinDoor);
+    OpenCoffinDoor();
+    Script.Walker.WebWalk(P.Coffin);
+    ClickCoffinCover(3000);
+
+    UseGhostsSkull();
+    Wait(RandomRange(1500, 3000));
+    ClickCoffin();
+
+    Wait(30000);
+end.
