@@ -17,9 +17,11 @@ var
   chatOptions: TRSChatOptionArray;
 
 begin
-  writeln('DoDialogue-: Starting');
+  writeln('DoDialogue-: Starting.');
 
-  Wait(RandomRange(6000, 8000));
+  // Wait(RandomRange(2000, 5000));  // wait for player to stop moving
+  Script.Walker.WaitPlayerMoving();
+  Wait(RandomRange(1500, 3500));
 
   for option in options do begin
     while Chatbox.ClickContinue() do Chatbox.PleaseWait();
@@ -33,20 +35,17 @@ begin
     // end;
     // writeln('end chat options!');
 
-    writeln(RSClient.FChild);
     writeln(chatOptions[option].Text);
-    Chatbox.ClickOption([chatOptions[option].Text]); // fn ugly fn
-    writeln(RSClient.FChild);
+    Chatbox.ClickOption([chatOptions[option].Text]);
 
     Chatbox.PleaseWait();
-    writeln(RSClient.FChild);
   end;
 
-  writeln('done selecting options');
+  writeln('DoDialogue-: Done selecting options.');
 
   while Chatbox.ClickContinue() do Chatbox.PleaseWait();
 
-  writeln('DoDialogue-: Done');
+  writeln('DoDialogue-: Done.');
 end;
 
 label FatherAereck, FatherUrhney, RestlessGhost, EnterWizardBasement, WizardBasement, ExitWizardBasement, RestlessGhostEnd;
@@ -57,16 +56,19 @@ begin
   Script.Init('/usr/games/runescape --prmfile=oldschool.prm & echo -ne "\n"');
   Script.LoadMap('/home/noone/Simba1.3/Scripts/restless-ghost/maps/restless-ghost-map.png');
 
-  Players.SetCurrent(1);
+  Players.SetCurrent(0);
   Script.Login();
 
   // wait so you can hide roofs, set brightness to max, set zoom to 50, turn off autoretaliate, set combat style to defensive, equip shield
   // this should be done automatically
-  writeln('Waiting for manual setup...');
-  DisplayDebugImgWindow(500, 500);
-  Wait(10000);
 
-  goto EnterWizardBasement;
+  {$IFDEF DEBUG}
+    writeln('Waiting for manual setup...');
+    while not isKeyDown(VK_ENTER) do Wait(100);
+    writeln('Manual setup done!');
+  {$ENDIF}
+
+  // goto EnterWizardBasement;
 
   // go see father aereck to start the quest!
   FatherAereck:
@@ -94,6 +96,7 @@ begin
     Script.Walker.WebWalk(P.CoffinDoor);
     OpenCoffinDoor();
     Script.Walker.WebWalk(P.Coffin);
+    ClickCoffin(5000);
     ClickCoffinCover(); // only open if coffin is closed
     ClickRestlessGhost();
     DoDialogue([0]);
