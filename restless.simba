@@ -1,3 +1,5 @@
+// vim: set syntax=delphi:
+
 program RestlessGhost;
 
 // a script that does the restless ghost quest

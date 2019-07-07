@@ -1,3 +1,4 @@
+// vim: set syntax=delphi:
 type TColors = record
     Coffin, CoffinCover, CoffinDoor, FatherAereck, FatherAereckDoor, FatherUrhney, FatherUrhneyDoor, RestlessGhost, WizardAltar, WizardTowerLadderBottom: TCTS2Color;
   end;
