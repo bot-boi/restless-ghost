@@ -7,48 +7,11 @@ program RestlessGhost;
 {$DEFINE DEBUG}
 
 {$I Script/script.simba}
+{$I Script/extra.simba}
 {$include_once colors.simba}
 {$include_once dtms.simba}
 {$include_once player-declarations.simba}
 {$include_once positions.simba}
-
-procedure DoDialogue(options: Array of Int32); // do chat by chat option indices, not strings :)
-var
-  option: Int32;
-  chatOption: TRSChatOption;
-  chatOptions: TRSChatOptionArray;
-
-begin
-  writeln('DoDialogue-: Starting.');
-
-  // Wait(RandomRange(2000, 5000));  // wait for player to stop moving
-  Script.Walker.WaitPlayerMoving();
-  Wait(RandomRange(1500, 3500));
-
-  for option in options do begin
-    while Chatbox.ClickContinue() do Chatbox.PleaseWait();
-
-    Chatbox.PleaseWait();
-    chatOptions := Chatbox.GetOptions();
-
-    // writeln('chat options!');
-    // for chatOption in chatOptions do begin
-    //   writeln(chatOption.Text);
-    // end;
-    // writeln('end chat options!');
-
-    writeln(chatOptions[option].Text);
-    Chatbox.ClickOption([chatOptions[option].Text]);
-
-    Chatbox.PleaseWait();
-  end;
-
-  writeln('DoDialogue-: Done selecting options.');
-
-  while Chatbox.ClickContinue() do Chatbox.PleaseWait();
-
-  writeln('DoDialogue-: Done.');
-end;
 
 label FatherAereck, FatherUrhney, RestlessGhost, EnterWizardBasement, WizardBasement, ExitWizardBasement, RestlessGhostEnd;
 
@@ -70,7 +33,7 @@ begin
     writeln('Manual setup done!');
   {$ENDIF}
 
-  // goto EnterWizardBasement;
+  goto RestlessGhost;
 
   // go see father aereck to start the quest!
   FatherAereck:
